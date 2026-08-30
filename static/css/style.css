@@ -16,6 +16,8 @@
     --accent-2-light: #fdf3e3;
     --danger: #c0392b;
     --danger-light: #fdecea;
+    --success: var(--accent);
+    --success-light: var(--accent-light);
     --border: #e4e1da;
     --border-soft: #eeebe4;
 
@@ -418,6 +420,24 @@ a { color: inherit; text-decoration: none; }
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
     margin-bottom: 1.25rem;
+}
+
+.flash-message {
+    max-width: var(--auth-width);
+    margin: 1rem auto 0;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+}
+
+.flash-error {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.flash-success {
+    background: var(--success-light);
+    color: var(--success);
 }
 
 .form-group { margin-bottom: 1.25rem; }
