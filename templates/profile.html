@@ -52,7 +52,10 @@
 </section>
 
 <section class="profile-card">
-    <h2><i data-lucide="receipt"></i>Recent Transactions</h2>
+    <div class="profile-card-header">
+        <h2><i data-lucide="receipt"></i>Recent Transactions</h2>
+        <a href="{{ url_for('add_expense') }}" class="btn-primary">Add Expense</a>
+    </div>
     <table class="transaction-table">
         <thead>
             <tr>

@@ -729,6 +729,17 @@ a { color: inherit; text-decoration: none; }
     margin-bottom: 1.25rem;
 }
 
+.profile-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+}
+
+.profile-card-header h2 {
+    margin-bottom: 0;
+}
+
 .profile-card h2 i {
     width: 20px;
     height: 20px;

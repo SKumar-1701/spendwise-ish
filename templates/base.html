@@ -21,6 +21,7 @@
             <div class="nav-links">
                 {% if session.user_id %}
                     <span class="nav-username">{{ session.user_name }}</span>
+                    <a href="{{ url_for('add_expense') }}" class="{{ 'nav-active' if request.endpoint == 'add_expense' }}">Add Expense</a>
                     <a href="{{ url_for('profile') }}">Profile</a>
                     <a href="{{ url_for('analytics') }}" class="{{ 'nav-active' if request.endpoint == 'analytics' }}">Analytics</a>
                     <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
