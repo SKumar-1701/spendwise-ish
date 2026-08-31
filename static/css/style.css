@@ -30,6 +30,14 @@
     --radius-sm: 6px;
     --radius-md: 12px;
     --radius-lg: 20px;
+
+    --cat-food: #c17f24;
+    --cat-transport: #5b7fa6;
+    --cat-bills: #c0392b;
+    --cat-health: #8b5e83;
+    --cat-entertainment: #1a472a;
+    --cat-shopping: #a0873c;
+    --cat-other: #6b6b6b;
 }
 
 /* ------------------------------------------------------------------ */
@@ -586,4 +594,233 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 600px) {
     .nav-links a:not(.nav-cta) { display: none; }
     .hero { padding: 3rem 1rem 2rem; }
+}
+
+/* ------------------------------------------------------------------ */
+/* Profile page                                                        */
+/* ------------------------------------------------------------------ */
+
+.nav-username {
+    color: var(--ink-muted);
+    font-weight: 500;
+}
+
+.profile-info-card,
+.profile-stats,
+.profile-card {
+    max-width: var(--max-width);
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+}
+
+.profile-info-card {
+    margin-top: 2rem;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.avatar-circle {
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-header h1 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+}
+
+.profile-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.profile-meta-row i {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--ink-faint);
+}
+
+.profile-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.profile-stat-tile {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.profile-stat-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--accent);
+}
+
+.profile-stat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.profile-stat-value {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+
+.profile-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.75rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.profile-card h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+}
+
+.profile-card h2 i {
+    width: 20px;
+    height: 20px;
+    color: var(--accent);
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transaction-table th {
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.transaction-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    color: var(--ink);
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.transaction-table tr:last-child td { border-bottom: none; }
+.transaction-table tbody tr { transition: background 0.15s; }
+.transaction-table tbody tr:hover { background: var(--paper-warm); }
+
+.transaction-table .col-amount {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.category-badge-food { background: color-mix(in srgb, var(--cat-food) 18%, white); color: var(--cat-food); }
+.category-badge-transport { background: color-mix(in srgb, var(--cat-transport) 18%, white); color: var(--cat-transport); }
+.category-badge-bills { background: color-mix(in srgb, var(--cat-bills) 18%, white); color: var(--cat-bills); }
+.category-badge-health { background: color-mix(in srgb, var(--cat-health) 18%, white); color: var(--cat-health); }
+.category-badge-entertainment { background: color-mix(in srgb, var(--cat-entertainment) 18%, white); color: var(--cat-entertainment); }
+.category-badge-shopping { background: color-mix(in srgb, var(--cat-shopping) 18%, white); color: var(--cat-shopping); }
+.category-badge-other { background: color-mix(in srgb, var(--cat-other) 18%, white); color: var(--cat-other); }
+
+.category-breakdown-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 80px;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.category-breakdown-row:last-child { margin-bottom: 0; }
+
+.category-breakdown-label {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+}
+
+.category-breakdown-amount {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.category-breakdown-track {
+    height: 8px;
+    background: var(--border-soft);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.category-breakdown-bar {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.category-breakdown-bar-food { background: var(--cat-food); }
+.category-breakdown-bar-transport { background: var(--cat-transport); }
+.category-breakdown-bar-bills { background: var(--cat-bills); }
+.category-breakdown-bar-health { background: var(--cat-health); }
+.category-breakdown-bar-entertainment { background: var(--cat-entertainment); }
+.category-breakdown-bar-shopping { background: var(--cat-shopping); }
+.category-breakdown-bar-other { background: var(--cat-other); }
+
+@media (max-width: 600px) {
+    .category-breakdown-row { grid-template-columns: 90px 1fr 60px; }
+    .profile-header { flex-direction: column; text-align: center; }
+    .profile-meta-row { justify-content: center; }
+    .profile-stats { grid-template-columns: 1fr; }
+    .transaction-table { display: block; overflow-x: auto; }
 }

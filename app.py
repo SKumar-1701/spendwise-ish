@@ -69,6 +69,7 @@ def login():
         return render_template("login.html")
 
     session["user_id"] = user["id"]
+    session["user_name"] = user["name"]
     flash("Logged in successfully.", "success")
     return redirect(url_for("landing"))
 
@@ -95,7 +96,44 @@ def privacy():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        flash("Please log in to view your profile.", "error")
+        return redirect(url_for("login"))
+
+    user = {
+        "name": "Demo User",
+        "email": "demo@spendwise-ish.com",
+        "initials": "DU",
+        "member_since": "January 2026",
+    }
+    stats = [
+        {"label": "Total Spent", "value": "$290.34"},
+        {"label": "Transactions", "value": "8"},
+        {"label": "Top Category", "value": "Food"},
+    ]
+    transactions = [
+        {"date": "2026-08-15", "description": "Dinner out", "category": "Food", "amount": "$32.40"},
+        {"date": "2026-08-12", "description": "Miscellaneous", "category": "Other", "amount": "$9.50"},
+        {"date": "2026-08-10", "description": "New shoes", "category": "Shopping", "amount": "$60.20"},
+        {"date": "2026-08-08", "description": "Movie tickets", "category": "Entertainment", "amount": "$15.75"},
+        {"date": "2026-08-06", "description": "Pharmacy", "category": "Health", "amount": "$25.00"},
+        {"date": "2026-08-04", "description": "Electricity bill", "category": "Bills", "amount": "$89.99"},
+        {"date": "2026-08-03", "description": "Bus pass top-up", "category": "Transport", "amount": "$12.00"},
+        {"date": "2026-08-01", "description": "Groceries", "category": "Food", "amount": "$45.50"},
+    ]
+    categories = [
+        {"name": "Bills", "amount": "$89.99", "percent": 31},
+        {"name": "Food", "amount": "$77.90", "percent": 27},
+        {"name": "Shopping", "amount": "$60.20", "percent": 21},
+        {"name": "Health", "amount": "$25.00", "percent": 9},
+        {"name": "Entertainment", "amount": "$15.75", "percent": 5},
+        {"name": "Transport", "amount": "$12.00", "percent": 4},
+        {"name": "Other", "amount": "$9.50", "percent": 3},
+    ]
+    return render_template(
+        "profile.html", user=user, stats=stats,
+        transactions=transactions, categories=categories,
+    )
 
 
 @app.route("/expenses/add")
