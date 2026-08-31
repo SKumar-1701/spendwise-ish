@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Profile — Spendwise-ish{% endblock %}
+
+{% block content %}
+<section class="profile-info-card">
+    <div class="profile-header">
+        <div class="avatar-circle">{{ user.initials }}</div>
+        <div>
+            <h1>{{ user.name }}</h1>
+            <p class="profile-meta-row"><i data-lucide="mail"></i>{{ user.email }}</p>
+            <p class="profile-meta-row"><i data-lucide="calendar"></i>Member since {{ user.member_since }}</p>
+        </div>
+    </div>
+</section>
+
+<section class="profile-stats">
+    {% set stat_icons = ["wallet", "receipt", "tag"] %}
+    {% for stat in stats %}
+        <div class="profile-stat-tile">
+            <i data-lucide="{{ stat_icons[loop.index0] if loop.index0 < stat_icons|length else 'circle' }}" class="profile-stat-icon"></i>
+            <span class="profile-stat-label">{{ stat.label }}</span>
+            <span class="profile-stat-value">{{ stat.value }}</span>
+        </div>
+    {% endfor %}
+</section>
+
+<section class="profile-card">
+    <h2><i data-lucide="receipt"></i>Recent Transactions</h2>
+    <table class="transaction-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th class="col-amount">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for txn in transactions %}
+            <tr>
+                <td>{{ txn.date }}</td>
+                <td>{{ txn.description }}</td>
+                <td><span class="category-badge category-badge-{{ txn.category|lower }}">{{ txn.category }}</span></td>
+                <td class="col-amount">{{ txn.amount }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="profile-card">
+    <h2><i data-lucide="pie-chart"></i>Category Breakdown</h2>
+    {% for cat in categories %}
+        <div class="category-breakdown-row">
+            <span class="category-breakdown-label">{{ cat.name }}</span>
+            <div class="category-breakdown-track">
+                <div class="category-breakdown-bar category-breakdown-bar-{{ cat.name|lower }}"
+                     style="width: {{ cat.percent }}%"></div>
+            </div>
+            <span class="category-breakdown-amount">{{ cat.amount }}</span>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
