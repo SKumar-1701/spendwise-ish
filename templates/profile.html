@@ -14,6 +14,32 @@
     </div>
 </section>
 
+<section class="filter-section">
+    <div class="filter-bar">
+        <div class="filter-presets">
+            <a href="{{ url_for('profile', date_from=filter_state.presets.this_month[0], date_to=filter_state.presets.this_month[1]) }}"
+               class="filter-preset {{ 'is-active' if filter_state.active == 'this_month' }}">This Month</a>
+            <a href="{{ url_for('profile', date_from=filter_state.presets.last_3_months[0], date_to=filter_state.presets.last_3_months[1]) }}"
+               class="filter-preset {{ 'is-active' if filter_state.active == 'last_3_months' }}">Last 3 Months</a>
+            <a href="{{ url_for('profile', date_from=filter_state.presets.last_6_months[0], date_to=filter_state.presets.last_6_months[1]) }}"
+               class="filter-preset {{ 'is-active' if filter_state.active == 'last_6_months' }}">Last 6 Months</a>
+            <a href="{{ url_for('profile') }}"
+               class="filter-preset {{ 'is-active' if filter_state.active == 'all_time' }}">All Time</a>
+        </div>
+        <form method="get" action="{{ url_for('profile') }}" class="filter-custom {{ 'is-active' if filter_state.active == 'custom' }}">
+            <div class="form-group">
+                <label for="date_from">From</label>
+                <input type="date" id="date_from" name="date_from" class="form-input" value="{{ filter_state.date_from }}">
+            </div>
+            <div class="form-group">
+                <label for="date_to">To</label>
+                <input type="date" id="date_to" name="date_to" class="form-input" value="{{ filter_state.date_to }}">
+            </div>
+            <button type="submit" class="btn-submit">Apply</button>
+        </form>
+    </div>
+</section>
+
 <section class="profile-stats">
     {% set stat_icons = ["wallet", "receipt", "tag"] %}
     {% for stat in stats %}
