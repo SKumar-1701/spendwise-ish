@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics — Spendwise-ish{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="analytics-section">
+    <div class="analytics-pill">
+        <span class="analytics-pill-dot"></span>
+        Coming Soon
+    </div>
+
+    <h1 class="analytics-title">Advanced <em>Analytics</em></h1>
+
+    <p class="analytics-subtitle">
+        We are working on powerful insights and visualizations to help you understand your spending patterns better.
+    </p>
+
+    <div class="chart-preview-card">
+        <div class="chart-window-dots">
+            <span class="window-dot window-dot-red"></span>
+            <span class="window-dot window-dot-yellow"></span>
+            <span class="window-dot window-dot-green"></span>
+        </div>
+
+        <div class="chart-bars-block">
+            <p class="chart-label">Spending by category</p>
+            <div class="chart-bars">
+                <div class="chart-bar-row">
+                    <span class="chart-bar-cat">Food &amp; Dining</span>
+                    <div class="chart-bar-track">
+                        <div class="chart-bar-fill chart-bar-food" style="width: 68%"></div>
+                    </div>
+                    <span class="chart-bar-pct">68%</span>
+                </div>
+                <div class="chart-bar-row">
+                    <span class="chart-bar-cat">Travel</span>
+                    <div class="chart-bar-track">
+                        <div class="chart-bar-fill chart-bar-travel" style="width: 45%"></div>
+                    </div>
+                    <span class="chart-bar-pct">45%</span>
+                </div>
+                <div class="chart-bar-row">
+                    <span class="chart-bar-cat">Bills</span>
+                    <div class="chart-bar-track">
+                        <div class="chart-bar-fill chart-bar-bills" style="width: 52%"></div>
+                    </div>
+                    <span class="chart-bar-pct">52%</span>
+                </div>
+                <div class="chart-bar-row">
+                    <span class="chart-bar-cat">Shopping</span>
+                    <div class="chart-bar-track">
+                        <div class="chart-bar-fill chart-bar-shopping" style="width: 30%"></div>
+                    </div>
+                    <span class="chart-bar-pct">30%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-stats-row">
+            <div class="chart-stat">
+                <p class="chart-stat-label">Avg monthly</p>
+                <p class="chart-stat-value">&#8377;21,400</p>
+            </div>
+            <div class="chart-stat">
+                <p class="chart-stat-label">Top category</p>
+                <p class="chart-stat-value">Food</p>
+            </div>
+            <div class="chart-stat">
+                <p class="chart-stat-label">Saved</p>
+                <p class="chart-stat-value">&#8377;3,200</p>
+            </div>
+        </div>
+
+        <div class="chart-overlay">
+            <div class="chart-overlay-inner">
+                <span class="chart-overlay-icon">&#128274;</span>
+                <p class="chart-overlay-text">Unlocking soon</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-actions">
+        <a href="#" class="btn-primary">Notify me when ready</a>
+        <a href="{{ url_for('profile') }}" class="btn-ghost">Go to Dashboard</a>
+    </div>
+</section>
+
+{% endblock %}

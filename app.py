@@ -244,6 +244,15 @@ def profile():
     )
 
 
+@app.route("/analytics")
+def analytics():
+    if not session.get("user_id"):
+        flash("Please log in to view analytics.", "error")
+        return redirect(url_for("login"))
+
+    return render_template("analytics.html")
+
+
 # ------------------------------------------------------------------ #
 # Placeholder routes — students will implement these                  #
 # ------------------------------------------------------------------ #
