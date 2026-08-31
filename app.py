@@ -3,7 +3,18 @@ import sqlite3
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from werkzeug.security import check_password_hash
 
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from database.db import (
+    get_db,
+    init_db,
+    seed_db,
+    create_user,
+    get_user_by_email,
+    get_user_by_id,
+    format_member_since,
+    get_recent_transactions,
+    get_summary_stats,
+    get_category_breakdown,
+)
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key-change-in-production"
@@ -90,9 +101,53 @@ def privacy():
     return render_template("privacy.html")
 
 
-# ------------------------------------------------------------------ #
-# Placeholder routes — students will implement these                  #
-# ------------------------------------------------------------------ #
+# --- Summary stats view-model helper (implemented by summary-stats subagent) ---
+# Must return a list of 3 dicts matching profile.html's `stats` loop:
+#   [{"label": "Total Spent", "value": "₹123.45"},
+#    {"label": "Transactions", "value": "8"},
+#    {"label": "Top Category", "value": "Bills"}]
+# Calls database.db.get_summary_stats(user_id) and formats the result.
+def _build_summary_stats(user_id):
+    stats = get_summary_stats(user_id)
+    return [
+        {"label": "Total Spent", "value": f"₹{stats['total_spent']:.2f}"},
+        {"label": "Transactions", "value": str(stats["transaction_count"])},
+        {"label": "Top Category", "value": stats["top_category"]},
+    ]
+
+
+# --- Transaction history view-model helper (implemented by transaction-history subagent) ---
+# Must return a list of dicts matching profile.html's `transactions` loop, newest-first:
+#   [{"date": "2026-08-15", "description": "Dinner out", "category": "Food", "amount": "₹32.40"}, ...]
+# Calls database.db.get_recent_transactions(user_id) and formats the result.
+def _build_transactions(user_id):
+    rows = get_recent_transactions(user_id)
+    return [
+        {
+            "date": row["date"],
+            "description": row["description"] or "",
+            "category": row["category"],
+            "amount": f"₹{row['amount']:.2f}",
+        }
+        for row in rows
+    ]
+
+
+# --- Category breakdown view-model helper (implemented by category-breakdown subagent) ---
+# Must return a list of dicts matching profile.html's `categories` loop, ordered by amount desc:
+#   [{"name": "Bills", "amount": "₹89.99", "percent": 31}, ...]  (percent ints summing to 100)
+# Calls database.db.get_category_breakdown(user_id) and formats the result.
+def _build_categories(user_id):
+    breakdown = get_category_breakdown(user_id)
+    return [
+        {
+            "name": item["name"],
+            "amount": f"₹{item['amount']:.2f}",
+            "percent": item["pct"],
+        }
+        for item in breakdown
+    ]
+
 
 @app.route("/profile")
 def profile():
@@ -100,41 +155,28 @@ def profile():
         flash("Please log in to view your profile.", "error")
         return redirect(url_for("login"))
 
+    user_id = session["user_id"]
+    user_row = get_user_by_id(user_id)
+    name_parts = user_row["name"].split()
+    initials = "".join(part[0] for part in name_parts[:2]).upper()
     user = {
-        "name": "Demo User",
-        "email": "demo@spendwise-ish.com",
-        "initials": "DU",
-        "member_since": "January 2026",
+        "name": user_row["name"],
+        "email": user_row["email"],
+        "initials": initials,
+        "member_since": format_member_since(user_row["created_at"]),
     }
-    stats = [
-        {"label": "Total Spent", "value": "$290.34"},
-        {"label": "Transactions", "value": "8"},
-        {"label": "Top Category", "value": "Food"},
-    ]
-    transactions = [
-        {"date": "2026-08-15", "description": "Dinner out", "category": "Food", "amount": "$32.40"},
-        {"date": "2026-08-12", "description": "Miscellaneous", "category": "Other", "amount": "$9.50"},
-        {"date": "2026-08-10", "description": "New shoes", "category": "Shopping", "amount": "$60.20"},
-        {"date": "2026-08-08", "description": "Movie tickets", "category": "Entertainment", "amount": "$15.75"},
-        {"date": "2026-08-06", "description": "Pharmacy", "category": "Health", "amount": "$25.00"},
-        {"date": "2026-08-04", "description": "Electricity bill", "category": "Bills", "amount": "$89.99"},
-        {"date": "2026-08-03", "description": "Bus pass top-up", "category": "Transport", "amount": "$12.00"},
-        {"date": "2026-08-01", "description": "Groceries", "category": "Food", "amount": "$45.50"},
-    ]
-    categories = [
-        {"name": "Bills", "amount": "$89.99", "percent": 31},
-        {"name": "Food", "amount": "$77.90", "percent": 27},
-        {"name": "Shopping", "amount": "$60.20", "percent": 21},
-        {"name": "Health", "amount": "$25.00", "percent": 9},
-        {"name": "Entertainment", "amount": "$15.75", "percent": 5},
-        {"name": "Transport", "amount": "$12.00", "percent": 4},
-        {"name": "Other", "amount": "$9.50", "percent": 3},
-    ]
+    stats = _build_summary_stats(user_id)
+    transactions = _build_transactions(user_id)
+    categories = _build_categories(user_id)
     return render_template(
         "profile.html", user=user, stats=stats,
         transactions=transactions, categories=categories,
     )
 
+
+# ------------------------------------------------------------------ #
+# Placeholder routes — students will implement these                  #
+# ------------------------------------------------------------------ #
 
 @app.route("/expenses/add")
 def add_expense():

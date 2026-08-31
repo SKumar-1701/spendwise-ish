@@ -7,7 +7,7 @@ funnels through this file.
 
 import os
 import sqlite3
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from werkzeug.security import generate_password_hash
 
@@ -144,5 +144,127 @@ def get_user_by_email(email):
             (email,),
         )
         return cursor.fetchone()
+    finally:
+        conn.close()
+
+
+def get_user_by_id(user_id):
+    """Look up a user by id.
+
+    Returns a sqlite3.Row with the user's columns (including
+    created_at) if found, or None if no user has that id.
+    """
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            "SELECT * FROM users WHERE id = ?",
+            (user_id,),
+        )
+        return cursor.fetchone()
+    finally:
+        conn.close()
+
+
+def format_member_since(created_at):
+    """Format a users.created_at timestamp as 'Month YYYY' (e.g. 'January 2026')."""
+    return datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S").strftime("%B %Y")
+
+
+def get_summary_stats(user_id):
+    """Compute summary statistics for a user's expenses.
+
+    Returns a dict with total_spent (float), transaction_count (int),
+    and top_category (str), or zeroed-out defaults if the user has no
+    expenses.
+    """
+    conn = get_db()
+    try:
+        totals_row = conn.execute(
+            "SELECT COALESCE(SUM(amount), 0) AS total_spent, "
+            "COUNT(*) AS transaction_count FROM expenses WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+
+        top_category_row = conn.execute(
+            "SELECT category, SUM(amount) AS category_total FROM expenses "
+            "WHERE user_id = ? GROUP BY category "
+            "ORDER BY category_total DESC LIMIT 1",
+            (user_id,),
+        ).fetchone()
+
+        top_category = top_category_row["category"] if top_category_row else "—"
+
+        return {
+            "total_spent": float(totals_row["total_spent"]),
+            "transaction_count": int(totals_row["transaction_count"]),
+            "top_category": top_category,
+        }
+    finally:
+        conn.close()
+
+
+def get_recent_transactions(user_id, limit=10):
+    """Look up a user's most recent expenses, newest first.
+
+    Returns a list of sqlite3.Row objects (id, user_id, amount, category,
+    date, description, created_at) — an empty list if the user has no
+    expenses.
+    """
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            """
+            SELECT id, user_id, amount, category, date, description, created_at
+            FROM expenses
+            WHERE user_id = ?
+            ORDER BY date DESC
+            LIMIT ?
+            """,
+            (user_id, limit),
+        )
+        return cursor.fetchall()
+    finally:
+        conn.close()
+
+
+def get_category_breakdown(user_id):
+    """Compute per-category spending totals and percentages for a user.
+
+    Returns a list of dicts, one per category with at least one expense,
+    ordered by summed amount descending:
+      [{"name": <category str>, "amount": <float total>, "pct": <int>}, ...]
+    The "pct" values are integers that sum to exactly 100 across the list
+    (rounding drift is absorbed into the largest category). Returns an
+    empty list if the user has no expenses.
+    """
+    conn = get_db()
+    try:
+        rows = conn.execute(
+            "SELECT category, SUM(amount) AS category_total FROM expenses "
+            "WHERE user_id = ? GROUP BY category "
+            "ORDER BY category_total DESC",
+            (user_id,),
+        ).fetchall()
+
+        if not rows:
+            return []
+
+        grand_total = sum(row["category_total"] for row in rows)
+
+        breakdown = [
+            {
+                "name": row["category"],
+                "amount": float(row["category_total"]),
+                "pct": round(row["category_total"] / grand_total * 100),
+            }
+            for row in rows
+        ]
+
+        pct_sum = sum(item["pct"] for item in breakdown)
+        if pct_sum != 100:
+            largest = max(breakdown, key=lambda item: item["amount"])
+            largest["pct"] += 100 - pct_sum
+
+        return breakdown
     finally:
         conn.close()
