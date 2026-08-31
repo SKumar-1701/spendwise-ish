@@ -1,4 +1,6 @@
+import calendar
 import sqlite3
+from datetime import date, datetime
 
 from flask import Flask, render_template, request, flash, redirect, url_for, session
 from werkzeug.security import check_password_hash
@@ -107,8 +109,8 @@ def privacy():
 #    {"label": "Transactions", "value": "8"},
 #    {"label": "Top Category", "value": "Bills"}]
 # Calls database.db.get_summary_stats(user_id) and formats the result.
-def _build_summary_stats(user_id):
-    stats = get_summary_stats(user_id)
+def _build_summary_stats(user_id, date_from=None, date_to=None):
+    stats = get_summary_stats(user_id, date_from, date_to)
     return [
         {"label": "Total Spent", "value": f"₹{stats['total_spent']:.2f}"},
         {"label": "Transactions", "value": str(stats["transaction_count"])},
@@ -120,8 +122,8 @@ def _build_summary_stats(user_id):
 # Must return a list of dicts matching profile.html's `transactions` loop, newest-first:
 #   [{"date": "2026-08-15", "description": "Dinner out", "category": "Food", "amount": "₹32.40"}, ...]
 # Calls database.db.get_recent_transactions(user_id) and formats the result.
-def _build_transactions(user_id):
-    rows = get_recent_transactions(user_id)
+def _build_transactions(user_id, date_from=None, date_to=None):
+    rows = get_recent_transactions(user_id, date_from=date_from, date_to=date_to)
     return [
         {
             "date": row["date"],
@@ -137,8 +139,8 @@ def _build_transactions(user_id):
 # Must return a list of dicts matching profile.html's `categories` loop, ordered by amount desc:
 #   [{"name": "Bills", "amount": "₹89.99", "percent": 31}, ...]  (percent ints summing to 100)
 # Calls database.db.get_category_breakdown(user_id) and formats the result.
-def _build_categories(user_id):
-    breakdown = get_category_breakdown(user_id)
+def _build_categories(user_id, date_from=None, date_to=None):
+    breakdown = get_category_breakdown(user_id, date_from, date_to)
     return [
         {
             "name": item["name"],
@@ -147,6 +149,47 @@ def _build_categories(user_id):
         }
         for item in breakdown
     ]
+
+
+# --- Date filter helpers (profile date-range filtering, Step 6) ---
+
+def _parse_date_filter(args):
+    """Read and validate date_from/date_to from a request.args-like mapping.
+
+    Returns (date_from, date_to, error). Missing, empty, or malformed
+    values fall back to (None, None, None) — no filter, no error. A valid
+    but inverted range (date_from after date_to) returns (None, None, msg)
+    so the caller can flash a message and still render unfiltered.
+    """
+    raw_from = args.get("date_from", "").strip()
+    raw_to = args.get("date_to", "").strip()
+
+    if not raw_from or not raw_to:
+        return None, None, None
+
+    try:
+        datetime.strptime(raw_from, "%Y-%m-%d")
+        datetime.strptime(raw_to, "%Y-%m-%d")
+    except ValueError:
+        return None, None, None
+
+    if raw_from > raw_to:
+        return None, None, "Start date must be before end date."
+
+    return raw_from, raw_to, None
+
+
+def _compute_preset_range(months_back):
+    """Return (date_from, date_to) strings spanning `months_back` calendar
+    months up to and including today."""
+    today = date.today()
+    year, month = today.year, today.month - months_back
+    while month <= 0:
+        month += 12
+        year -= 1
+    day = min(today.day, calendar.monthrange(year, month)[1])
+    start = date(year, month, day)
+    return start.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")
 
 
 @app.route("/profile")
@@ -165,12 +208,39 @@ def profile():
         "initials": initials,
         "member_since": format_member_since(user_row["created_at"]),
     }
-    stats = _build_summary_stats(user_id)
-    transactions = _build_transactions(user_id)
-    categories = _build_categories(user_id)
+
+    date_from, date_to, filter_error = _parse_date_filter(request.args)
+    if filter_error:
+        flash(filter_error, "error")
+
+    today = date.today()
+    preset_ranges = [
+        ("this_month", (today.replace(day=1).strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"))),
+        ("last_3_months", _compute_preset_range(3)),
+        ("last_6_months", _compute_preset_range(6)),
+    ]
+
+    presets = {}
+    active = "custom" if (date_from and date_to) else "all_time"
+    for name, preset_range in preset_ranges:
+        presets[name] = preset_range
+        if (date_from, date_to) == preset_range:
+            active = name
+
+    filter_state = {
+        "date_from": date_from or "",
+        "date_to": date_to or "",
+        "active": active,
+        "presets": presets,
+    }
+
+    stats = _build_summary_stats(user_id, date_from, date_to)
+    transactions = _build_transactions(user_id, date_from, date_to)
+    categories = _build_categories(user_id, date_from, date_to)
     return render_template(
         "profile.html", user=user, stats=stats,
         transactions=transactions, categories=categories,
+        filter_state=filter_state,
     )
 
 
