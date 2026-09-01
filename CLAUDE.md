@@ -73,10 +73,10 @@ Route | Status
 GET /	Implemented — renders landing.html
 GET /register	Implemented — renders register.html
 GET /login	Implemented — renders login.html
-GET /logout	Stub — Step 3
-GET /profile	Implemented — renders profile.html (hardcoded data)
-GET /expenses/add	Stub — Step 7
-GET /expenses/<id>/edit	Stub — Step 8
+GET /logout	Implemented — clears session, redirects to landing
+GET /profile	Implemented — renders profile.html (live DB data)
+GET, POST /expenses/add	Implemented — Step 7
+GET, POST /expenses/<id>/edit	Implemented — Step 8
 GET /expenses/<id>/delete	Stub — Step 9
 
 Do not implement a stub route unless the active task explicitly targets that step.
