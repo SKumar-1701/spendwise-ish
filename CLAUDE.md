@@ -77,7 +77,7 @@ GET /logout	Implemented — clears session, redirects to landing
 GET /profile	Implemented — renders profile.html (live DB data)
 GET, POST /expenses/add	Implemented — Step 7
 GET, POST /expenses/<id>/edit	Implemented — Step 8
-GET /expenses/<id>/delete	Stub — Step 9
+POST /expenses/<id>/delete	Implemented — Step 9
 
 Do not implement a stub route unless the active task explicitly targets that step.
 

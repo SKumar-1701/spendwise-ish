@@ -378,3 +378,21 @@ def update_expense(expense_id, user_id, amount, category, date, description):
         conn.commit()
     finally:
         conn.close()
+
+
+def delete_expense(expense_id, user_id):
+    """Delete an expense, scoped to its owning user.
+
+    The user_id condition is a second ownership guard in addition to the
+    caller having already checked get_expense_by_id. Deleting a nonexistent
+    id or another user's id is a silent no-op (0 rows affected).
+    """
+    conn = get_db()
+    try:
+        conn.execute(
+            "DELETE FROM expenses WHERE id = ? AND user_id = ?",
+            (expense_id, user_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
