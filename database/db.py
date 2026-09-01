@@ -336,3 +336,45 @@ def get_category_breakdown(user_id, date_from=None, date_to=None):
         return breakdown
     finally:
         conn.close()
+
+
+def get_expense_by_id(expense_id, user_id):
+    """Look up a single expense by id, scoped to its owning user.
+
+    Returns a sqlite3.Row with the expense's columns if it exists and
+    belongs to user_id, or None otherwise. Scoping ownership in the query
+    itself means a nonexistent id and another user's id are indistinguishable
+    to the caller.
+    """
+    conn = get_db()
+    try:
+        cursor = conn.execute(
+            "SELECT * FROM expenses WHERE id = ? AND user_id = ?",
+            (expense_id, user_id),
+        )
+        return cursor.fetchone()
+    finally:
+        conn.close()
+
+
+def update_expense(expense_id, user_id, amount, category, date, description):
+    """Update an existing expense, scoped to its owning user.
+
+    Caller is responsible for validating amount/category/date and for
+    normalizing a blank description to None before calling. The user_id
+    condition is a second ownership guard in addition to the caller having
+    already checked get_expense_by_id.
+    """
+    conn = get_db()
+    try:
+        conn.execute(
+            """
+            UPDATE expenses
+            SET amount = ?, category = ?, date = ?, description = ?
+            WHERE id = ? AND user_id = ?
+            """,
+            (amount, category, date, description, expense_id, user_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()

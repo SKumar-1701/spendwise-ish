@@ -63,6 +63,7 @@
                 <th>Description</th>
                 <th>Category</th>
                 <th class="col-amount">Amount</th>
+                <th class="col-actions">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -72,6 +73,11 @@
                 <td>{{ txn.description }}</td>
                 <td><span class="category-badge category-badge-{{ txn.category|lower }}">{{ txn.category }}</span></td>
                 <td class="col-amount">{{ txn.amount }}</td>
+                <td class="col-actions">
+                    <a href="{{ url_for('edit_expense', id=txn.id) }}" class="btn-edit" aria-label="Edit transaction">
+                        <i data-lucide="pencil"></i>
+                    </a>
+                </td>
             </tr>
         {% endfor %}
         </tbody>
